@@ -36,7 +36,7 @@ void DrumsView::initTextures()
     if (!fontsContainer){
         return;
     }
-    const auto font = FontsContainer::instance()->getFontById("info_text");
+    const auto font = fontsContainer->getFontById("info_text");
     if (!font){
         return;
     }
@@ -48,6 +48,10 @@ void DrumsView::initTextures()
             }
             auto fontSurface = TTF_RenderText_Solid(font, slotState->text.c_str(), mSlotTextStyle);
             auto fontTex = SDL_CreateTextureFromSurface(mRenderer, fontSurface);
+            SDL_FreeSurface(fontSurface);
+            if (!fontTex){
+                continue;
+            }
             mSlotsTextures.insert({slotState->text, fontTex});
         }
     }
@@ -59,7 +63,7 @@ void DrumsView::paint()
     if (!fontsContainer){
         return;
     }
-    const auto font = FontsContainer::instance()->getFontById("info_text");
+    const auto font = fontsContainer->getFontById("info_text");
     if (!mDrumsModel || !font || !mRenderer){
         return;
     }

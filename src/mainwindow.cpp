@@ -41,6 +41,9 @@ bool MainWindow::init()
     mDrumsView->setRenderer(mRenderer);
     mDrumsView->initTextures();
 
+    mRotationButton->setRenderer(mRenderer);
+    mRotationButton->initTextures();
+
     return true;
 }
 
@@ -100,7 +103,7 @@ void MainWindow::updatePainting(){
 
     if (mRotationButton && mRealFPS > 0){
         mRotationButton->updateButton(1000 / mRealFPS);
-        mRotationButton->paint(mRenderer);
+        mRotationButton->paint();
     }
 
     if (mDrumsModel && mDrumsView && mRealFPS > 0){
@@ -110,12 +113,12 @@ void MainWindow::updatePainting(){
 
     const auto fontsContainer = FontsContainer::instance();
     if (fontsContainer){
-        if (const auto font = FontsContainer::instance()->getFontById("info_text")){
+        if (const auto font = fontsContainer->getFontById("info_text")){
             const auto fpsInfoText = "Current FPS: " + std::to_string(mRealFPS);
-            const auto fontSurface = TTF_RenderText_Solid(font, fpsInfoText.c_str(), {0, 0, 0, 255});
-            const auto fontTex = SDL_CreateTextureFromSurface(mRenderer, fontSurface);
+            const auto fontFpsSurface = TTF_RenderText_Solid(font, fpsInfoText.c_str(), {0, 0, 0, 255});
+            const auto fontFpsTex = SDL_CreateTextureFromSurface(mRenderer, fontFpsSurface);
             int fontW, fontH;
-            SDL_QueryTexture(fontTex, NULL, NULL, &fontW, &fontH);
+            SDL_QueryTexture(fontFpsTex, NULL, NULL, &fontW, &fontH);
             
             SDL_Rect fontRect = {
                 .x = static_cast<int>(mScreenWidth * 0.1),
@@ -123,7 +126,9 @@ void MainWindow::updatePainting(){
                 .w = fontW, 
                 .h = fontH
             };
-            SDL_RenderCopy(mRenderer, fontTex, NULL, &fontRect);
+            SDL_FreeSurface(fontFpsSurface);
+            SDL_RenderCopy(mRenderer, fontFpsTex, NULL, &fontRect);
+            SDL_DestroyTexture(fontFpsTex);
         }
     }
 

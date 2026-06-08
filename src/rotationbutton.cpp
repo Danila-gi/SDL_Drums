@@ -20,7 +20,7 @@ void RotationButton::loadStyles()
 
     const auto fontsContainer = FontsContainer::instance();
     if (fontsContainer){
-        if (const auto font = FontsContainer::instance()->getFontById("button")){
+        if (const auto font = fontsContainer->getFontById("button")){
             mFontSurface = TTF_RenderText_Solid(font, "Start", {0, 0, 0, 255});
         }
     }
@@ -45,6 +45,16 @@ void RotationButton::setState(ButtonState state)
     default:
         break;
     }
+}
+
+void RotationButton::setRenderer(SDL_Renderer* renderer)
+{
+    mRenderer = renderer;
+}
+
+void RotationButton::initTextures()
+{
+    mFontTexture = SDL_CreateTextureFromSurface(mRenderer, mFontSurface);
 }
 
 const SDL_Rect* RotationButton::getRect() const
@@ -79,20 +89,19 @@ void RotationButton::updateButton(int delay)
     }
 }
 
-void RotationButton::paint(SDL_Renderer* renderer)
+void RotationButton::paint()
 {
-    if (!renderer || !mFontSurface){
+    if (!mRenderer || !mFontSurface){
         return;
     }
-    SDL_SetRenderDrawColor(renderer, 
+    SDL_SetRenderDrawColor(mRenderer, 
         mCurrentStyle.r, mCurrentStyle.g, 
         mCurrentStyle.b, mCurrentStyle.a
     );
-    SDL_RenderFillRect(renderer, getRect());
+    SDL_RenderFillRect(mRenderer, getRect());
 
-    const auto fontTex = SDL_CreateTextureFromSurface(renderer, mFontSurface);
     int fontW, fontH;
-    SDL_QueryTexture(fontTex, NULL, NULL, &fontW, &fontH);
+    SDL_QueryTexture(mFontTexture, NULL, NULL, &fontW, &fontH);
     int buttonCenterX = getRect()->x + getRect()->w / 2;
     int buttonCenterY = getRect()->y + getRect()->h / 2;
     
@@ -102,7 +111,7 @@ void RotationButton::paint(SDL_Renderer* renderer)
         .w = fontW, 
         .h = fontH
     };
-    SDL_RenderCopy(renderer, fontTex, NULL, &fontRect);
+    SDL_RenderCopy(mRenderer, mFontTexture, NULL, &fontRect);
 }
 
 void RotationButton::updateToPressedState()
@@ -123,5 +132,9 @@ void RotationButton::release()
     if (mFontSurface) {
         SDL_FreeSurface(mFontSurface);
         mFontSurface = nullptr;
+    }
+    if (mFontTexture){
+        SDL_DestroyTexture(mFontTexture);
+        mFontTexture = nullptr;
     }
 }

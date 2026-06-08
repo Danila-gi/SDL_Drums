@@ -36,6 +36,17 @@ public:
     void setState(ButtonState state);
 
     /**
+     * @brief   Передача рендерера, на котором будет происходить отрисовка
+     * @param   renderer  Указатель на рендерер, на котором будет происходить отрисовка
+     */
+    void setRenderer(SDL_Renderer* renderer);
+
+    /**
+     * @brief   Инициализация текстуры кнопки
+     */
+    void initTextures();
+
+    /**
      * @brief   Получение прямоугольника данной кнопки
      * @return  Константный указатель на объект прямоугольника SDL_Rect
      */
@@ -49,9 +60,8 @@ public:
 
     /**
      * @brief   Отрисовка текущей графики кнопки
-     * @param   renderer    Указатель на рендерер, на котором будет происходить отрисовка
      */
-    void paint(SDL_Renderer* renderer);
+    void paint();
 
     /**
      * @brief   Обновление состояния кнопки, при нормальном состоянии происходит смена стиля
@@ -92,6 +102,9 @@ private:
     ButtonState mButtonState {NORMAL}; // текущее состояние кнопки
     SDL_Rect mRect; // прямогольник кнопки
     SDL_Surface* mFontSurface {nullptr}; // поверхность, на которой написан текст определенного шрифта
+    SDL_Texture* mFontTexture {nullptr}; // текстура, на которой написан текст определенного шрифта
+
+    SDL_Renderer* mRenderer {nullptr}; // текущий рендерер, на котором будет отрисовка
 
     SDL_Color mCurrentStyle; // текущий стиль кнопки
     SDL_Color mPressedStyle; // стиль кнопки (ее цвет) принажатом состоянии
