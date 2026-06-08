@@ -7,6 +7,14 @@
 #include <expected>
 
 /**
+ * @enum    DrumsError
+ * @brief   Возможные ошибки при работе с барабанами
+ */
+enum DrumsError{
+    InvalidSlotIndex, // некорретный индекс слота
+};
+
+/**
  * @class   DrumsModel
  * @brief   Класс модели барабанов.
  *          Содержит внутренне состояние каждого слота, отвечает за начало и окончание вращения,
@@ -44,11 +52,13 @@ public:
     DrumsModel(int drumsCount, int drumLength);
 
     /**
-     * @brief   Начало вращения
+     * @brief   Начало вращения. Скорость, с которой будет идти вращение, задается каждому барабану случайно.
      * @param   timeStopRotate  Время (мс), через которое должен остановиться первый барабан
-     * @param   deltaBetweenStopDrums  Время (мс) между остановкой каждого барабана 
+     * @param   deltaBetweenStopDrums  Время (мс) между остановкой каждого барабана
+     * @param   minTimeSlotsMove  Минимальное время (мс), через которое должны сместиться слоты
+     * @param   maxTimeSlotsMove  Максимальное время (мс), через которое должны сместиться слоты
      */
-    void startRotation(int timeStopRotate, int deltaBetweenStopDrums);
+    void startRotation(int timeStopRotate, int deltaBetweenStopDrums, int minTimeSlotsMove, int maxTimeSlotsMove);
 
     /**
      * @brief   Обновление состояния модели
@@ -63,27 +73,16 @@ public:
     bool isStartRotate() const;
 
     /**
-     * @brief   Получение текст из определенного слота
-     * @return  Если данные верные, то вернется текст std::string, иначе false.
+     * @brief   Получение состояния определенного слота
+     * @return  Если данные верные, то вернется объект SlotState, иначе ошибка DrumsError.
      */
-    std::expected<std::string, bool> getTextFromSlot(int indexDrum, int indexSlot) const;
-    /**
-     * @brief   Получение фонового цвета из определенного слота
-     * @return  Если данные верные, то вернется цвет SDL_Color, иначе false.
-     */
-    std::expected<SDL_Color, bool> getFillColorFromSlot(int indexDrum, int indexSlot) const;
+    std::expected<SlotState, DrumsError> getSlotState(int indexDrum, int indexSlot) const;
+
     /**
      * @brief   Получение размеров системы барабанов 
      * @return  Пара чисел: количество барабанов, размер барабана (количество слотов)
      */
     std::pair<int, int> getDrumsSize() const;
-
-private:
-    /**
-     * @brief   Получение состояния определенного слота
-     * @return  Если данные верные, то вернется объект SlotState, иначе false.
-     */
-    std::expected<SlotState, bool> getSlotState(int indexDrum, int indexSlot) const;
 
 private:
     bool mIsStartRotate {false}; // флаг статуса вращения барабана

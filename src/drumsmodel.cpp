@@ -28,11 +28,11 @@ DrumsModel::DrumsModel(int drumsCount, int drumLength)
     }
 }
 
-void DrumsModel::startRotation(int timeStopRotate, int deltaBetweenStopDrums)
+void DrumsModel::startRotation(int timeStopRotate, int deltaBetweenStopDrums, int minTimeSlotsMove, int maxTimeSlotsMove)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(200, 500);
+    std::uniform_int_distribution<> distrib(minTimeSlotsMove, maxTimeSlotsMove);
 
     for (int i = 0; i < mDrumsCount; i++){
         mDrums[i].isRotating = true;
@@ -54,34 +54,13 @@ std::pair<int, int> DrumsModel::getDrumsSize() const
     return {mDrumsCount, mDrumLength};
 }
 
-std::expected<DrumsModel::SlotState, bool> DrumsModel::getSlotState(int indexDrum, int indexSlot) const
+std::expected<DrumsModel::SlotState, DrumsError> DrumsModel::getSlotState(int indexDrum, int indexSlot) const
 {
-    if (indexDrum < 0 || indexDrum >= mDrumsCount
-        || indexSlot < 0 || indexSlot >= mDrumLength){
-            return std::unexpected<bool>(false);
-    }
-    if (mDrums.empty() || mDrums[indexDrum].slots.empty()){
-        return std::unexpected<bool>(false);
+    if (mDrums.size() <= indexDrum || mDrums[indexDrum].slots.size() <= indexSlot
+        || indexDrum < 0 || indexSlot < 0){
+        return std::unexpected<DrumsError>(InvalidSlotIndex);
     }
     return mDrums[indexDrum].slots[indexSlot];
-}
-
-std::expected<std::string, bool> DrumsModel::getTextFromSlot(int indexDrum, int indexSlot) const
-{
-    const auto slotState = getSlotState(indexDrum, indexSlot);
-    if (slotState.has_value()){
-        return slotState->text;
-    }
-    return std::unexpected<bool>(false);
-}
-
-std::expected<SDL_Color, bool> DrumsModel::getFillColorFromSlot(int indexDrum, int indexSlot) const
-{
-    const auto slotState = getSlotState(indexDrum, indexSlot);
-    if (slotState.has_value()){
-        return slotState->fillColor;
-    }
-    return std::unexpected<bool>(false);
 }
 
 void DrumsModel::updateState(int delay)

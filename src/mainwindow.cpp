@@ -23,7 +23,7 @@ bool MainWindow::init()
         return false;
     }
 
-    mWindow = SDL_CreateWindow("SDL Hello", 
+    mWindow = SDL_CreateWindow("SDL Drums", 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
         mScreenWidth, mScreenHeight, SDL_WINDOW_SHOWN
     );
@@ -37,6 +37,9 @@ bool MainWindow::init()
         std::cout << "Renderer couldn't be created!" << std::endl;
         return false;
     }
+
+    mDrumsView->setRenderer(mRenderer);
+    mDrumsView->initTextures();
 
     return true;
 }
@@ -60,7 +63,7 @@ void MainWindow::run()
                     if (mRotationButton->getState() != PRESSED && mRotationButton->isCoordsInsideRect(mouseX, mouseY)){
                         mRotationButton->setState(PRESSED);
                         if (mDrumsModel){
-                            mDrumsModel->startRotation(5000, 500);
+                            mDrumsModel->startRotation(5000, 500, 50, 700);
                         }
                     }
                 }
@@ -102,7 +105,7 @@ void MainWindow::updatePainting(){
 
     if (mDrumsModel && mDrumsView && mRealFPS > 0){
         mDrumsModel->updateState(1000 / mRealFPS);
-        mDrumsView->paint(mRenderer);
+        mDrumsView->paint();
     }
 
     const auto fontsContainer = FontsContainer::instance();
@@ -129,6 +132,12 @@ void MainWindow::updatePainting(){
 
 void MainWindow::close()
 {
+    if (mRotationButton){
+        mRotationButton->release();
+    }
+    if (mDrumsView){
+        mDrumsView->release();
+    }
     if (mRenderer){
         SDL_DestroyRenderer(mRenderer);
         mRenderer = nullptr;
