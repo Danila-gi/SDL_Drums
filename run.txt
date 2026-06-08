@@ -1,0 +1,10 @@
+g++ hello.cpp -o hello `sdl2-config --cflags --libs`
+
+sudo apt install libsdl2-dev
+sudo apt install libsdl2-ttf-dev
+
+mkdir build
+cp -r fonts/ build/
+cd build
+cmake .. && make
+./game
